@@ -26,10 +26,9 @@ class Email_lib
         $this->email = new Email();
         $this->config = config(OSPOS::class)->settings;
 
-        $encrypter = Services::encrypter();
-
         $smtp_pass = $this->config['smtp_pass'];
         if (!empty($smtp_pass) && check_encryption()) {
+            $encrypter = Services::encrypter();
             try {
                 $smtp_pass = $encrypter->decrypt($smtp_pass);
             } catch (\EncryptionException $e) {

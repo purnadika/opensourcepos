@@ -92,35 +92,43 @@ use Config\OSPOS;
                 $images = FCPATH. 'uploads/item_pics/';
                 $importCustomers = WRITEPATH . '/uploads/importCustomers.csv';    // TODO: This variable does not follow naming conventions for the project.
 
-                if (is_writable($logs)) {
-                    echo ' -  ' . substr(sprintf("%o", fileperms($logs)), -4) . ' |  ' . '<span style="color: green;">  Writable &#x2713 </span>';
-                } else {
-                    echo ' -  ' . substr(sprintf("%o", fileperms($logs)), -4) . ' |  ' . '<span style="color: red;">    Not Writable &#x2717 </span>';
-                }
+                if (file_exists($logs)) {
+                    if (is_writable($logs)) {
+                        echo ' -  ' . substr(sprintf("%o", fileperms($logs)), -4) . ' |  ' . '<span style="color: green;">  Writable &#x2713 </span>';
+                    } else {
+                        echo ' -  ' . substr(sprintf("%o", fileperms($logs)), -4) . ' |  ' . '<span style="color: red;">    Not Writable &#x2717 </span>';
+                    }
 
-                clearstatcache();
-                if (is_writable($logs) && substr(decoct(fileperms($logs)), -4) != 750) {
-                    echo ' | <span style="color: red;">Vulnerable or Incorrect Permissions &#x2717</span>';
+                    clearstatcache();
+                    if (is_writable($logs) && substr(decoct(fileperms($logs)), -4) != 750) {
+                        echo ' | <span style="color: red;">Vulnerable or Incorrect Permissions &#x2717</span>';
+                    } else {
+                        echo ' | <span style="color: green;">Security Check Passed &#x2713</span>';
+                    }
                 } else {
-                    echo ' | <span style="color: green;">Security Check Passed &#x2713</span>';
+                    echo ' -  <span style="color: red;"> Directory Missing &#x2717 </span>';
                 }
                 clearstatcache();
                 ?>
                 <br>
                 &#187; [public/uploads:]
                 <?php
-                if (is_writable($uploads)) {
-                    echo ' -  ' . substr(sprintf("%o", fileperms($uploads)), -4) . ' |  ' . '<span style="color: green;">     Writable &#x2713 </span>';
-                } else {
-                    echo ' -  ' . substr(sprintf("%o", fileperms($uploads)), -4) . ' |  ' . '<span style="color: red;"> Not Writable &#x2717 </span>';
-                }
+                if (file_exists($uploads)) {
+                    if (is_writable($uploads)) {
+                        echo ' -  ' . substr(sprintf("%o", fileperms($uploads)), -4) . ' |  ' . '<span style="color: green;">     Writable &#x2713 </span>';
+                    } else {
+                        echo ' -  ' . substr(sprintf("%o", fileperms($uploads)), -4) . ' |  ' . '<span style="color: red;"> Not Writable &#x2717 </span>';
+                    }
 
-                clearstatcache();
+                    clearstatcache();
 
-                if (is_writable($uploads) && substr(decoct(fileperms($uploads)), -4) != 750) {
-                    echo ' | <span style="color: red;">Vulnerable or Incorrect Permissions &#x2717</span>';
+                    if (is_writable($uploads) && substr(decoct(fileperms($uploads)), -4) != 750) {
+                        echo ' | <span style="color: red;">Vulnerable or Incorrect Permissions &#x2717</span>';
+                    } else {
+                        echo ' |  <span style="color: green;">Security Check Passed &#x2713 </span>';
+                    }
                 } else {
-                    echo ' |  <span style="color: green;">Security Check Passed &#x2713 </span>';
+                    echo ' -  <span style="color: red;"> Directory Missing &#x2717 </span>';
                 }
 
                 clearstatcache();
@@ -128,64 +136,71 @@ use Config\OSPOS;
                 <br>
                 &#187; [public/uploads/item_pics:]
                 <?php
-                if (is_writable($images)) {
-                    echo ' -  ' . substr(sprintf("%o", fileperms($images)), -4) . ' |     ' . '<span style="color: green;"> Writable &#x2713 </span>';
+                if (file_exists($images)) {
+                    if (is_writable($images)) {
+                        echo ' -  ' . substr(sprintf("%o", fileperms($images)), -4) . ' |     ' . '<span style="color: green;"> Writable &#x2713 </span>';
+                    } else {
+                        echo ' -  ' . substr(sprintf("%o", fileperms($images)), -4) . ' |     ' . '<span style="color: red;"> Not Writable &#x2717 </span>';
+                    }
+
+                    clearstatcache();
+
+                    if (substr(decoct(fileperms($images)), -4) != 750) {
+                        echo ' | <span style="color: red;">Vulnerable or Incorrect Permissions &#x2717</span>';
+                    } else {
+                        echo ' | <span style="color: green;">Security Check Passed &#x2713 </span>';
+                    }
                 } else {
-                    echo ' -  ' . substr(sprintf("%o", fileperms($images)), -4) . ' |     ' . '<span style="color: red;"> Not Writable &#x2717 </span>';
+                    echo ' -  <span style="color: red;"> Directory Missing &#x2717 </span>';
                 }
-
-                clearstatcache();
-
-                if (substr(decoct(fileperms($images)), -4) != 750) {
-                    echo ' | <span style="color: red;">Vulnerable or Incorrect Permissions &#x2717</span>';
-                } else {
-                    echo ' | <span style="color: green;">Security Check Passed &#x2713 </span>';
-                }
-
                 clearstatcache();
                 ?>
                 <br>
                 &#187; [importCustomers.csv:]
                 <?php
-                if (is_readable($importCustomers)) {
-                    echo ' -  ' . substr(sprintf("%o", fileperms($importCustomers)), -4) . ' |  ' . '<span style="color: green;">     Readable &#x2713 </span>';
-                } else {
-                    echo ' -  ' . substr(sprintf("%o", fileperms($importCustomers)), -4) . ' |  ' . '<span style="color: red;"> Not Readable &#x2717 </span>';
-                }
-                clearstatcache();
+                if (file_exists($importCustomers)) {
+                    if (is_readable($importCustomers)) {
+                        echo ' -  ' . substr(sprintf("%o", fileperms($importCustomers)), -4) . ' |  ' . '<span style="color: green;">     Readable &#x2713 </span>';
+                    } else {
+                        echo ' -  ' . substr(sprintf("%o", fileperms($importCustomers)), -4) . ' |  ' . '<span style="color: red;"> Not Readable &#x2717 </span>';
+                    }
+                    clearstatcache();
 
-                if (!((substr(decoct(fileperms($importCustomers)), -4) == 640) || (substr(decoct(fileperms($importCustomers)), -4) == 660))) {
-                    echo ' | <span style="color: red;">Vulnerable or Incorrect Permissions &#x2717</span>';
+                    if (!((substr(decoct(fileperms($importCustomers)), -4) == 640) || (substr(decoct(fileperms($importCustomers)), -4) == 660))) {
+                        echo ' | <span style="color: red;">Vulnerable or Incorrect Permissions &#x2717</span>';
+                    } else {
+                        echo ' | <span style="color: green;">Security Check Passed &#x2713 </span>';
+                    }
                 } else {
-                    echo ' | <span style="color: green;">Security Check Passed &#x2713 </span>';
+                    echo ' -  <span style="color: green;"> File Missing (OK) &#x2713 </span>';
                 }
                 clearstatcache();
                 ?>
                 <br>
                 <?php
-                if (!((substr(decoct(fileperms($logs)), -4) == 750)
-                    && (substr(decoct(fileperms($uploads)), -4) == 750)
-                    && (substr(decoct(fileperms($images)), -4) == 750)
-                    && ((substr(decoct(fileperms($importCustomers)), -4) == 640)
+                if ((file_exists($logs) && substr(decoct(fileperms($logs)), -4) != 750)
+                    || (file_exists($uploads) && substr(decoct(fileperms($uploads)), -4) != 750)
+                    || (file_exists($images) && substr(decoct(fileperms($images)), -4) != 750)
+                    || (file_exists($importCustomers) && !((substr(decoct(fileperms($importCustomers)), -4) == 640)
                         || (substr(decoct(fileperms($importCustomers)), -4) == 660)))) {
                     echo '<br><span style="color: red;"><strong>' . lang('Config.security_issue') . '</strong> <br>' . lang('Config.perm_risk') . '</span><br>';
                 } else {
                     echo '<br><span style="color: green;">' . lang('Config.no_risk') . '</strong> <br> </span>';
                 }
 
-                if (substr(decoct(fileperms($logs)), -4) != 750) {
+                if (file_exists($logs) && substr(decoct(fileperms($logs)), -4) != 750) {
                     echo '<br><span style="color: red;"> &#187; [writable/logs:] ' . lang('Config.is_writable') . '</span>';
                 }
 
-                if (substr(decoct(fileperms($uploads)), -4) != 750) {
+                if (file_exists($uploads) && substr(decoct(fileperms($uploads)), -4) != 750) {
                     echo '<br><span style="color: red;"> &#187; [writable/uploads:] ' . lang('Config.is_writable') . '</span>';
                 }
 
-                if (substr(decoct(fileperms($images)), -4) != 750) {
+                if (file_exists($images) && substr(decoct(fileperms($images)), -4) != 750) {
                     echo '<br><span style="color: red;"> &#187; [writable/uploads/item_pics:] ' . lang('Config.is_writable') . '</span>';
                 }
 
-                if (!((substr(decoct(fileperms($importCustomers)), -4) == 640)
+                if (file_exists($importCustomers) && !((substr(decoct(fileperms($importCustomers)), -4) == 640)
                     || (substr(decoct(fileperms($importCustomers)), -4) == 660))) {
                     echo '<br><span style="color: red;"> &#187; [importCustomers.csv:] ' . lang('Config.is_readable') . '</span>';
                 }
