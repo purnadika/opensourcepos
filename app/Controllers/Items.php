@@ -1008,7 +1008,7 @@ class Items extends Secure_Controller
 
                     foreach ($csvRows as $key => $row) {
                         $isFailedRow = false;
-                        $itemId = (int)$row['Id'];
+                        $itemId = isset($row['Id']) ? (int)$row['Id'] : 0;
                         $isUpdate = ($itemId > 0);
                         $itemData = [
                             'item_id'       => $itemId,

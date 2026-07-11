@@ -39,13 +39,15 @@ class OSPOSRules
             return false;
         }
 
-        $password = $data['password'];
-        if (!$employee->login($username, $password)) {
-            $error = lang('Login.invalid_username_and_password');
+        // Throttling for Brute Force Protection
+        $throttler = Services::throttler();
+        if ($throttler->check($this->request->getIPAddress(), 5, 60) === false) {
+            $error = "Too many attempts. Please try again later.";
 
             return false;
         }
 
+        // CAPTCHA Check MUST be before password verification to prevent timing/response attacks
         $gcaptcha_enabled = array_key_exists('gcaptcha_enable', $this->config) && $this->config['gcaptcha_enable'];
         if ($gcaptcha_enabled) {
             $g_recaptcha_response = $this->request->getPost('g-recaptcha-response');
@@ -55,6 +57,13 @@ class OSPOSRules
 
                 return false;
             }
+        }
+
+        $password = $data['password'];
+        if (!$employee->login($username, $password)) {
+            $error = lang('Login.invalid_username_and_password');
+
+            return false;
         }
 
         return true;

@@ -1235,8 +1235,66 @@ class Sale extends Model
     {
         $builder = $this->db->table('sales');
 
+        $current_status = $this->get_sale_status($sale_id);
+
+        // If we are canceling a sale, refund payments like gift cards and rewards
+        if ($sale_status == CANCELED && $current_status != CANCELED) {
+            $this->refund_payments($sale_id);
+        }
+
         $builder->where('sale_id', $sale_id);
         $builder->update(['sale_status' => $sale_status]);
+    }
+
+    /**
+     * Refund reward points and gift cards when a sale is canceled or a suspended sale is discarded
+     */
+    private function refund_payments(int $sale_id): void
+    {
+        // Refund Gift Cards
+        $builder = $this->db->table('sales_payments');
+        $builder->where('sale_id', $sale_id);
+        $payments = $builder->get()->getResultArray();
+
+        $giftcard = model(Giftcard::class);
+        $customer = model(Customer::class);
+
+        foreach ($payments as $payment) {
+            if (!empty(strstr($payment['payment_type'], lang('Sales.giftcard')))) {
+                $splitPayment = explode(':', $payment['payment_type']);
+                if (isset($splitPayment[1])) {
+                    $currentGiftcardValue = $giftcard->get_giftcard_value($splitPayment[1]);
+                    $giftcard->update_giftcard_value($splitPayment[1], $currentGiftcardValue + $payment['payment_amount']);
+                }
+            }
+        }
+        
+        // Refund Rewards
+        $config = config(OSPOS::class)->settings;
+        if ($config['customer_reward_enable'] ?? false) {
+            $rewards_builder = $this->db->table('sales_reward_points');
+            $rewards_builder->where('sale_id', $sale_id);
+            $reward_row = $rewards_builder->get()->getRow();
+
+            if ($reward_row != null) {
+                $sale_info = $this->db->table('sales')->where('sale_id', $sale_id)->get()->getRow();
+                $customer_id = $sale_info->customer_id ?? null;
+
+                if (!empty($customer_id)) {
+                    $current_points = $customer->get_info($customer_id)->points;
+                    
+                    if ($reward_row->used > 0) {
+                        $current_points += $reward_row->used;
+                    }
+                    if ($reward_row->earned > 0) {
+                        $current_points -= $reward_row->earned;
+                    }
+
+                    $customer->update_reward_points_value($customer_id, $current_points);
+                    $rewards_builder->where('sale_id', $sale_id)->update(['used' => 0, 'earned' => 0]);
+                }
+            }
+        }
     }
 
     /**

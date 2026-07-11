@@ -74,7 +74,7 @@ class Item extends Model
             $builder->where('deleted', $deleted);
         }
 
-        return ($builder->get()->getNumRows() === 1);
+        return ($builder->get()->getNumRows() > 0);
     }
 
     /**
@@ -444,7 +444,15 @@ class Item extends Model
     {
         $builder = $this->db->table('items');
 
-        if ($item_id < 1 || !$this->exists($item_id, true)) {
+        // Check if exact item_id exists in the database
+        $item_exists = false;
+        if ($item_id > 0) {
+            $check_builder = $this->db->table('items');
+            $check_builder->where('item_id', $item_id);
+            $item_exists = ($check_builder->get()->getNumRows() > 0);
+        }
+
+        if ($item_id < 1 || !$item_exists) {
             if ($builder->insert($item_data)) {
                 $item_data['item_id'] = (int)$this->db->insertID();
                 if ($item_id < 1) {

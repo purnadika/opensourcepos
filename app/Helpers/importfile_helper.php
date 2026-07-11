@@ -60,15 +60,23 @@ function get_csv_file(string $file_name): array
 
         $csv_rows = [];
 
-        // Skip Byte-Order Mark
-        if (bom_exists($csv_file)) {
-            fseek($csv_file, 3);
-        }
-
         $headers = fgetcsv($csv_file);
+        
+        if ($headers !== false && isset($headers[0])) {
+            // Strip BOM from the first header if present (fixes "Undefined array key 'Id'")
+            $headers[0] = ltrim($headers[0], "\xEF\xBB\xBF");
+        }
 
         while (($row = fgetcsv($csv_file)) !== false) {
             if ($row !== [null]) {
+                // Pad the row with empty strings if it has fewer elements than headers to avoid array_combine warnings
+                if (count($headers) > count($row)) {
+                    $row = array_pad($row, count($headers), '');
+                }
+                // Slice the row if it has more elements than headers
+                if (count($row) > count($headers)) {
+                    $row = array_slice($row, 0, count($headers));
+                }
                 $csv_rows[] = array_combine($headers, $row);
             }
         }
